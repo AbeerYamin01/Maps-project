@@ -1,0 +1,89 @@
+<head>
+  <meta charset='utf-8' />
+  <title>Searching for places</title>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css' rel='stylesheet' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css' type='text/css' />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 6%;
+      bottom: 0%;
+      width: 100%;
+    }
+    h3 {
+        text-align: center;
+        font-size: 30px;
+    }
+   
+  </style>
+</head>
+<body>
+    <h3> Map </h3>
+  <div id='map'></div>
+  <div id="geocoder" class="geocoder"></div>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYWJlZXJ5YW1pbjAxIiwiYSI6ImNsY2djYm1jMzB0aGszc2s1MzJicTY4bW0ifQ.JkAXmHxUSmMI8hlmVv5STg';
+
+    const map = new mapboxgl.Map({
+      container: 'map', 
+      style: 'mapbox://styles/mapbox/streets-v12', 
+      center: [35.930359, 31.963158], 
+      zoom: 8, 
+    });
+    const marker = new mapboxgl.Marker() 
+  .setLngLat([35.930359, 31.963158]) 
+  .addTo(map); 
+
+  const geocoder = new MapboxGeocoder({
+  accessToken: mapboxgl.accessToken, 
+  mapboxgl: mapboxgl, 
+  marker: false 
+});
+
+map.addControl(geocoder);{
+    const geocoder = new MapboxGeocoder({
+  accessToken: mapboxgl.accessToken, 
+  mapboxgl: mapboxgl, 
+  placeholder: 'Search for places', 
+  bbox: [35.930359, 31.963158, 35.930359, 31.963158], 
+  proximity: {
+    longitude: 35.930359,
+    latitude: 31.963158
+  } 
+});
+}
+
+map.on('load', () => {
+  map.addSource('single-point', {
+    type: 'geojson',
+    data: {
+      type: 'FeatureCollection',
+      features: []
+    }
+  });
+
+  map.addLayer({
+    id: 'point',
+    source: 'single-point',
+    type: 'circle',
+    paint: {
+      'circle-radius': 10,
+      'circle-color': '#448ee4'
+    }
+  });
+
+  geocoder.on('result', (event) => {
+    map.getSource('single-point').setData(event.result.geometry);
+  });
+});
+  </script>
+</body>
+</html>
